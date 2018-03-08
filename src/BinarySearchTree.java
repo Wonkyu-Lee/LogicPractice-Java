@@ -142,27 +142,47 @@ public class BinarySearchTree {
         if (tree.right != null) inorderTraverse(tree.right, visitor);
     }
 
-    static void printTree(Node tree) {
-        inorderTraverse(tree, (node) -> {
-            System.out.printf("%d ", node.key);
-        });
-        System.out.println();
+
+    Node root = null;
+
+    void add(int key) {
+        root = insert(root, key);
+    }
+
+    boolean contains(int key) {
+        return (find(root, key) != null);
+    }
+
+    int getCountOf(int key) {
+        return findNodes(root, key).size();
+    }
+
+    void remove(int key) {
+        root = removeKey(root, key);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        inorderTraverse(root, (node -> {
+            sb.append(node.key);
+            sb.append(" ");
+        }));
+        return sb.toString();
     }
 
     public static void main(String[] args) {
         int[] keys = {4, 5, 2, 8, 3, 6, 1, 4, 7, 3, 10, 3};
 
-        Node tree = null;
+        BinarySearchTree bst = new BinarySearchTree();
         for (int key : keys) {
-            tree = insert(tree, key);
+            bst.add(key);
         }
-        printTree(tree);
+        System.out.println(bst);
 
-        LinkedList<Node> found = findNodes(tree, 4);
-        System.out.printf("Count of 4: %d\n", found.size());
-
+        System.out.printf("Count of 4: %d\n", bst.getCountOf(4));
         System.out.print("Remove 4: ");
-        tree = removeKey(tree, 4);
-        printTree(tree);
+        bst.remove(4);
+        System.out.println(bst);
     }
 }
