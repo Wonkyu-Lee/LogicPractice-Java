@@ -89,11 +89,11 @@ public class Knapsack {
         int[] values = {10, 30, 20};
         int[] weights = {5, 10, 15};
 
-        System.out.println(knapsack1(values, weights, 3, 8));
-        System.out.println(knapsack2(values, weights, 3, 8));
-        System.out.println(knapsack3(values, weights, 3, 8));
+        System.out.println(knapsack1(values, weights, 3, 50));
+        System.out.println(knapsack2(values, weights, 3, 50));
+        System.out.println(knapsack3(values, weights, 3, 50));
 
-        System.out.println(unboundedKnapsack1(values, weights, 3, 8));
-        System.out.println(unboundedKnapsack2(values, weights, 3, 8));
+        System.out.println(unboundedKnapsack1(values, weights, 3, 50));
+        System.out.println(unboundedKnapsack2(values, weights, 3, 50));
     }
 }
