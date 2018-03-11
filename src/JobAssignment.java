@@ -125,7 +125,6 @@ public class JobAssignment {
             }
         }
 
-
         return Integer.MAX_VALUE;
     }
 
