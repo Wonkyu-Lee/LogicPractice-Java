@@ -41,7 +41,7 @@ public class BoardGameOthello {
                 switch (this) {
                     case BLACK: return Stone.WHITE;
                     case WHITE: return Stone.BLACK;
-                    default: throw new IllegalArgumentException();
+                    default: throw new UnsupportedOperationException();
                 }
             }
         }

@@ -12,7 +12,7 @@ public class BoardGameTicTacToe {
                 switch (this) {
                     case O: return X;
                     case X: return O;
-                    default: throw new IllegalArgumentException();
+                    default: throw new UnsupportedOperationException();
                 }
             }
         }

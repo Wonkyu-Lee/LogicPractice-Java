@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.Stack;
 
 public class BinarySearchTree {
 
@@ -142,6 +143,91 @@ public class BinarySearchTree {
         if (tree.right != null) inorderTraverse(tree.right, visitor);
     }
 
+    static class InorderTraversal {
+        final Stack<Node> stack = new Stack<>();
+
+        InorderTraversal(Node tree) {
+            Node current = tree;
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+        }
+
+        boolean hasNext() {
+            return !stack.isEmpty();
+        }
+
+        int peek() {
+            return stack.peek().key;
+        }
+
+        int next() {
+            Node current = stack.pop();
+            int key = current.key;
+            current = current.right;
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+            return key;
+        }
+    }
+
+    static class PreorderTraversal {
+        final Stack<Node> stack = new Stack<>();
+
+        PreorderTraversal(Node tree) {
+            stack.push(tree);
+        }
+
+        boolean hasNext() {
+            return !stack.isEmpty();
+        }
+
+        int peek() {
+            return stack.peek().key;
+        }
+
+        int next() {
+            Node current = stack.pop();
+            int key = current.key;
+            if (current.right != null) {
+                stack.push(current.right);
+            }
+            if (current.left != null) {
+                stack.push(current.left);
+            }
+            return key;
+        }
+    }
+
+    static class PostorderTraversal {
+        final Stack<Node> stack1 = new Stack<>();
+        final Stack<Node> stack2 = new Stack<>();
+
+        PostorderTraversal(Node tree) {
+            stack1.push(tree);
+            while (!stack1.isEmpty()) {
+                Node node = stack1.pop();
+                stack2.push(node);
+                if (node.left != null) stack1.push(node.left);
+                if (node.right != null) stack1.push(node.right);
+            }
+        }
+
+        boolean hasNext() {
+            return !stack2.isEmpty();
+        }
+
+        int peek() {
+            return stack2.peek().key;
+        }
+
+        int next() {
+            return stack2.pop().key;
+        }
+    }
 
     Node root = null;
 
@@ -171,7 +257,7 @@ public class BinarySearchTree {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
+    static void testBst() {
         int[] keys = {4, 5, 2, 8, 3, 6, 1, 4, 7, 3, 10, 3};
 
         BinarySearchTree bst = new BinarySearchTree();
@@ -184,5 +270,36 @@ public class BinarySearchTree {
         System.out.print("Remove 4: ");
         bst.remove(4);
         System.out.println(bst);
+    }
+
+    static void testTraversals() {
+        int[] keys = {5, 3, 8, 2, 4, 6, 9, 1, 7};
+
+        BinarySearchTree bst = new BinarySearchTree();
+        for (int key : keys) {
+            bst.add(key);
+        }
+
+        InorderTraversal inorder = new InorderTraversal(bst.root);
+        while (inorder.hasNext()) {
+            System.out.print(inorder.next() + " ");
+        }
+        System.out.println();
+
+        PreorderTraversal preorder = new PreorderTraversal(bst.root);
+        while (preorder.hasNext()) {
+            System.out.print(preorder.next() + " ");
+        }
+        System.out.println();
+
+        PostorderTraversal postorder = new PostorderTraversal(bst.root);
+        while (postorder.hasNext()) {
+            System.out.print(postorder.next() + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        testTraversals();
     }
 }

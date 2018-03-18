@@ -6,12 +6,19 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
-// https://ide.geeksforgeeks.org/x8CtcgQBKP
 public class BoardGameGo {
     enum Stone {
         EMPTY,
         BLACK,
-        WHITE
+        WHITE;
+
+        Stone otherSide() {
+            switch (this) {
+                case BLACK: return Stone.WHITE;
+                case WHITE: return Stone.BLACK;
+                default: throw new UnsupportedOperationException();
+            }
+        }
     }
 
     static class Pair {
@@ -44,11 +51,8 @@ public class BoardGameGo {
             return 0;
         }
 
-        Stone opponent = (stone == Stone.BLACK) ? Stone.WHITE : Stone.BLACK;
-
         grid[r][c] = stone;
 
-        boolean surrounded = false;
         int[][] delta = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
         Set<Pair> totalVisited = new HashSet<>();
         for (int i = 0; i < 4; ++i) {
@@ -61,19 +65,18 @@ public class BoardGameGo {
             if (totalVisited.contains(new Pair(nr, nc)))
                 continue;
 
-            if (grid[nr][nc] != opponent)
+            if (grid[nr][nc] != stone.otherSide())
                 continue;
 
             Set<Pair> visited = new HashSet<>();
             if (surroundedByOpponent(grid, nr, nc, visited)) {
-                surrounded = true;
                 totalVisited.addAll(visited);
             }
         }
 
         grid[r][c] = Stone.EMPTY;
 
-        return surrounded ? totalVisited.size() : 0;
+        return totalVisited.size();
     }
 
     static boolean valid(Stone[][] grid, int r, int c) {
@@ -84,7 +87,6 @@ public class BoardGameGo {
         Stone stone = grid[r][c];
         Pair pos = new Pair(r, c);
         visited.add(pos);
-        //System.out.printf("visit(%d,%d)\n", pos.row, pos.col);
 
         boolean surrounded = true;
 
