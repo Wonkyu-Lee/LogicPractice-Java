@@ -40,15 +40,6 @@ public class WordBreakingProblem {
         return dp[0][n - 1];
     }
 
-    static class Pos {
-        final int r;
-        final int c;
-        Pos(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
-    }
-
     static String wordSplitted(Set<String> dic, String str) {
         int n = str.length();
         boolean[][] dp = new boolean[n][n];
