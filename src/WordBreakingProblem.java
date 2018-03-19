@@ -76,7 +76,7 @@ public class WordBreakingProblem {
             }
         }
 
-        boolean splittable =dp[0][n - 1];
+        boolean splittable = dp[0][n - 1];
         if (!splittable)
             return str;
 
