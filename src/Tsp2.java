@@ -6,11 +6,6 @@ import java.util.*;
 
 public class Tsp2 {
 
-    static List<Integer> solveTsp(int[][] d) {
-        TspSolver solver = new AStarSolver(d);
-        return solver.path();
-    }
-
     static class Context {
         final int[][] d;
         int minLength = Integer.MAX_VALUE;
@@ -43,15 +38,15 @@ public class Tsp2 {
     static abstract class TspSolver {
         Context context;
 
-        protected TspSolver(int[][] d) {
+        TspSolver(int[][] d) {
             context = new Context(d);
         }
 
-        public int length() {
+        int length() {
             return context.minLength;
         }
 
-        public List<Integer> path() {
+        List<Integer> path() {
             return context.minPath;
         }
     }
@@ -59,7 +54,7 @@ public class Tsp2 {
     static class BoundedBranchSolver extends TspSolver {
         State startState;
 
-        public BoundedBranchSolver(int[][] d) {
+        BoundedBranchSolver(int[][] d) {
             super(d);
             startState = new State(context);
             solve(startState);
@@ -84,9 +79,9 @@ public class Tsp2 {
     }
 
     static class AStarSolver extends TspSolver {
-        private PriorityQueue<State> queue;
+        PriorityQueue<State> queue;
 
-        public AStarSolver(int[][] d) {
+        AStarSolver(int[][] d) {
             super(d);
             queue = new PriorityQueue<>(Comparator.comparing(s -> s.expLength));
             queue.add(new State(context));
@@ -121,7 +116,6 @@ public class Tsp2 {
             visited = new boolean[n];
             curLength = 0;
             expLength = context.sumOfMinWeights;
-            //solve();
         }
 
         State(State other) {
@@ -175,21 +169,6 @@ public class Tsp2 {
                 context.minPath.add(first);
             }
         }
-
-        void rollback() {
-            if (curPath.isEmpty())
-                throw new AssertionError();
-
-            int v = curPath.peekLast();
-
-            visited[v] = false;
-            curPath.removeLast();
-
-            if (!curPath.isEmpty()) {
-                int u = curPath.peekLast();
-                curLength -= context.d[u][v];
-            }
-        }
     }
 
     public static void main(String[] args) {
@@ -214,8 +193,18 @@ public class Tsp2 {
                 }
             }
 
-            List<Integer> optimalPath = solveTsp(d);
-            System.out.println(optimalPath);
+
+            {
+                System.out.println("A-Star Solver");
+                List<Integer> optimalPath = new AStarSolver(d).path();
+                System.out.println(optimalPath);
+            }
+
+            {
+                System.out.println("Bounded branch Solver");
+                List<Integer> optimalPath = new BoundedBranchSolver(d).path();
+                System.out.println(optimalPath);
+            }
         }
     }
 }
