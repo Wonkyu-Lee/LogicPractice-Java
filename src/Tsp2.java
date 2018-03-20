@@ -2,67 +2,148 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Tsp2 {
 
     static List<Integer> solveTsp(int[][] d) {
-        Tsp tsp = new Tsp(d);
-        return tsp.minPath;
+        TspSolver solver = new AStarSolver(d);
+        return solver.path();
     }
 
-    static class Tsp {
+    static class Context {
         final int[][] d;
-        final boolean[] visited;
-        int curLength;
         int minLength = Integer.MAX_VALUE;
-        LinkedList<Integer> curPath = new LinkedList<>();
         LinkedList<Integer> minPath = null;
+        int[] minOutEdgeWeights;
+        int sumOfMinWeights = 0;
 
-        Tsp(int[][] d) {
+        Context(int[][] d) {
+            this.d = d;
+
             int n = d.length;
-            this.d = new int[n][n];
+            minOutEdgeWeights = new int[n];
+
             for (int i = 0; i < n; ++i) {
+                int minWeight = Integer.MAX_VALUE;
                 for (int j = 0; j < n; ++j) {
-                    this.d[i][j] = d[i][j];
+                    if (i == j) continue;
+                    minWeight = Math.min(minWeight, d[i][j]);
                 }
+                minOutEdgeWeights[i] = minWeight;
+                sumOfMinWeights += minWeight;
             }
-
-            visited = new boolean[n];
-            curLength = 0;
-
-            solve();
         }
 
         int vertexCount() {
             return d.length;
         }
+    }
 
-        void solve() {
-            int v = getToVisit();
-            if (v == -1) {
-                checkAndUpdate();
+    static abstract class TspSolver {
+        Context context;
+
+        protected TspSolver(int[][] d) {
+            context = new Context(d);
+        }
+
+        public int length() {
+            return context.minLength;
+        }
+
+        public List<Integer> path() {
+            return context.minPath;
+        }
+    }
+
+    static class BoundedBranchSolver extends TspSolver {
+        State startState;
+
+        public BoundedBranchSolver(int[][] d) {
+            super(d);
+            startState = new State(context);
+            solve(startState);
+        }
+
+        void solve(State start) {
+            List<State> candidates = start.nextCandidates();
+            if (candidates.isEmpty()) {
+                start.checkAndUpdate();
                 return;
             }
 
-            visit(v);
+            Collections.sort(candidates, Comparator.comparing((State state) -> state.expLength));
+            for (State candidate : candidates) {
+                if (candidate.expLength > context.minLength) {
+                    return;
+                }
+
+                solve(candidate);
+            }
+        }
+    }
+
+    static class AStarSolver extends TspSolver {
+        private PriorityQueue<State> queue;
+
+        public AStarSolver(int[][] d) {
+            super(d);
+            queue = new PriorityQueue<>(Comparator.comparing(s -> s.expLength));
+            queue.add(new State(context));
             solve();
-            rollback();
         }
 
-        // TODO: 이 부분을 개선해보자.
-        int getToVisit() {
-            int v = -1;
-            int n = vertexCount();
+        void solve() {
+            while (!queue.isEmpty()) {
+                State state = queue.poll();
+
+                List<State> candidates = state.nextCandidates();
+                if (candidates.isEmpty()) {
+                    state.checkAndUpdate();
+                    return;
+                }
+
+                queue.addAll(candidates);
+            }
+        }
+    }
+
+    static class State {
+        final Context context;
+        final boolean[] visited;
+        int curLength;
+        int expLength;
+        LinkedList<Integer> curPath = new LinkedList<>();
+
+        State(Context context) {
+            this.context = context;
+            int n = context.vertexCount();
+            visited = new boolean[n];
+            curLength = 0;
+            expLength = context.sumOfMinWeights;
+            //solve();
+        }
+
+        State(State other) {
+            this.context = other.context;
+            visited = other.visited.clone();
+            curLength = other.curLength;
+            expLength = other.expLength;
+            curPath.addAll(other.curPath);
+        }
+
+        List<State> nextCandidates() {
+            ArrayList<State> candidates = new ArrayList<>();
+            int n = context.vertexCount();
             for (int i = 0; i < n; ++i) {
                 if (!visited[i]) {
-                    v = i;
+                    State state = new State(this);
+                    state.visit(i);
+                    candidates.add(state);
                     break;
                 }
             }
-            return v;
+            return candidates;
         }
 
         void visit(int v) {
@@ -76,7 +157,8 @@ public class Tsp2 {
             } else {
                 int last = curPath.peekLast();
                 curPath.add(v);
-                curLength += d[last][v];
+                curLength += context.d[last][v];
+                expLength += context.d[last][v] - context.minOutEdgeWeights[last];
             }
         }
 
@@ -86,11 +168,11 @@ public class Tsp2 {
 
             int first = curPath.peekFirst();
             int last = curPath.peekLast();
-            int newLength = curLength + d[last][first];
-            if (newLength < minLength) {
-                minLength = newLength;
-                minPath = new LinkedList<>(curPath);
-                minPath.add(first);
+            int newLength = curLength + context.d[last][first];
+            if (newLength < context.minLength) {
+                context.minLength = newLength;
+                context.minPath = new LinkedList<>(curPath);
+                context.minPath.add(first);
             }
         }
 
@@ -105,7 +187,7 @@ public class Tsp2 {
 
             if (!curPath.isEmpty()) {
                 int u = curPath.peekLast();
-                curLength -= d[u][v];
+                curLength -= context.d[u][v];
             }
         }
     }
