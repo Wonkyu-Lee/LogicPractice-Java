@@ -63,7 +63,6 @@ public class WeightedJobScheduling {
         }
 
         for (int i = 1; i < dp.length; ++i) {
-            int indexOfMaxBenefit = -1;
             for (int j = 0; j < i; ++j) {
                 if (jobs[i].overlap(jobs[j]))
                     continue;
@@ -78,7 +77,7 @@ public class WeightedJobScheduling {
 
         int maxValue = Integer.MIN_VALUE;
         int indexOfMaxValue = -1;
-        for (int i = 1; i < dp.length; ++i) {
+        for (int i = 0; i < dp.length; ++i) {
             if (dp[i] > maxValue) {
                 maxValue = dp[i];
                 indexOfMaxValue = i;

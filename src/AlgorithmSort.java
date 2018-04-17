@@ -83,7 +83,7 @@ public class AlgorithmSort {
      * k's left child = 2 * k + 1
      * k's right child = 2 * k + 2
      */
-    static void heapify(int[] A, int size, int k) {
+    static void heapify(int[] A, int size, int k) { // TODO: size 인자가 있음을 기억하자.
         int l = 2 * k + 1;
         int r = 2 * k + 2;
         int greater = -1;
@@ -138,7 +138,7 @@ public class AlgorithmSort {
         int[] B = new int[A.length];
         for (int i = A.length - 1; 0 <= i; --i) {
             int slot = A[i];
-            B[C[slot] - 1] = A[i];
+            B[C[slot] - 1] = A[i]; // C[]는 개수이므로 index는 -1 해준다.
             C[slot]--;
         }
 
